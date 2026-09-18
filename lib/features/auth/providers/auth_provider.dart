@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/theme_provider.dart';
 import '../../../data/local/session_storage.dart';
 import '../../../data/models/app_user.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -38,6 +39,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
       }
       await SessionStorage.instance.saveUserId(user.id);
       ref.invalidate(sessionProvider);
+      ref.read(themePreferenceProvider.notifier).applyForUser(user);
       state = const AsyncValue.data(null);
       return true;
     } catch (e, st) {
@@ -67,6 +69,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
       await SessionStorage.instance.saveUserId(user.id);
       ref.invalidate(hasAnyUserProvider);
       ref.invalidate(sessionProvider);
+      ref.read(themePreferenceProvider.notifier).applyForUser(user);
       state = const AsyncValue.data(null);
       return true;
     } catch (e, st) {

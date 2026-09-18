@@ -42,6 +42,7 @@ class UserRepository {
     required String email,
     required String password,
     required UserRole role,
+    AppThemePreference theme = AppThemePreference.system,
   }) async {
     final db = await AppDatabase.instance.database;
     final hash = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -51,6 +52,7 @@ class UserRepository {
       email: email.toLowerCase().trim(),
       passwordHash: hash,
       role: role,
+      theme: theme,
       createdAt: DateTime.now(),
     );
     await db.insert('users', user.toRow());
@@ -63,5 +65,37 @@ class UserRepository {
     if (user == null) return null;
     final ok = BCrypt.checkpw(password, user.passwordHash);
     return ok ? user : null;
+  }
+
+  /// Persists the theme choice on the logged-in user's row — matches the
+  /// original's "persisted per-user, applied on login" behavior.
+  Future<void> updateTheme(String userId, AppThemePreference theme) async {
+    final db = await AppDatabase.instance.database;
+    await db.update(
+      'users',
+      {'theme': theme.value},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  Future<bool> updatePassword({
+    required String userId,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final user = await findById(userId);
+    if (user == null) return false;
+    final ok = BCrypt.checkpw(currentPassword, user.passwordHash);
+    if (!ok) return false;
+    final db = await AppDatabase.instance.database;
+    final newHash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+    await db.update(
+      'users',
+      {'password_hash': newHash},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+    return true;
   }
 }

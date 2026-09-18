@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-// ignore: unused_import
 import '../../../core/theme/app_colors.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/nav_item.dart';
@@ -30,8 +28,7 @@ class HomeShell extends ConsumerWidget {
 
     final bottomItems = allNavItems
         .where(
-          (i) =>
-              bottomNavRoutes.contains(i.route) && i.visibleTo.contains(role),
+          (i) => bottomNavRoutes.contains(i.route) && i.visibleTo.contains(role),
         )
         .toList();
 

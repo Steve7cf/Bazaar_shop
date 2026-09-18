@@ -9,11 +9,13 @@ import '../../features/home/screens/dashboard_screen.dart';
 import '../../features/home/screens/placeholder_screen.dart';
 import '../../features/home/widgets/home_shell.dart';
 import '../../features/onboarding/screens/onboarding_screen.dart';
+import '../../features/products/screens/product_form_screen.dart';
+import '../../features/products/screens/products_screen.dart';
+import '../../features/profile/screens/profile_screen.dart';
 
 final _placeholderRoutes = <String, ({String title, IconData icon})>{
   '/home/pos': (title: 'New Sale', icon: Icons.point_of_sale_rounded),
   '/home/sales': (title: 'Sales History', icon: Icons.receipt_long_rounded),
-  '/home/products': (title: 'Products', icon: Icons.inventory_2_rounded),
   '/home/customers': (title: 'Customers', icon: Icons.people_rounded),
   '/home/debts': (title: 'Debts', icon: Icons.request_quote_rounded),
   '/home/loans': (title: 'Personal Loans', icon: Icons.handshake_rounded),
@@ -22,7 +24,6 @@ final _placeholderRoutes = <String, ({String title, IconData icon})>{
   '/home/insights': (title: 'Business Insights', icon: Icons.insights_rounded),
   '/home/staff': (title: 'Staff', icon: Icons.badge_rounded),
   '/home/audit-log': (title: 'Audit Log', icon: Icons.fact_check_rounded),
-  '/home/profile': (title: 'Profile', icon: Icons.person_rounded),
 };
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -52,6 +53,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           currentRoute: '/home/dashboard',
           title: 'Dashboard',
           child: DashboardScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/home/products',
+        builder: (context, state) => const HomeShell(
+          currentRoute: '/home/products',
+          title: 'Products',
+          child: ProductsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/home/products/new',
+        builder: (context, state) => const ProductFormScreen(),
+      ),
+      GoRoute(
+        path: '/home/products/:id',
+        builder: (context, state) => ProductFormScreen(
+          productId: state.pathParameters['id'],
+        ),
+      ),
+      GoRoute(
+        path: '/home/profile',
+        builder: (context, state) => const HomeShell(
+          currentRoute: '/home/profile',
+          title: 'Profile',
+          child: ProfileScreen(),
         ),
       ),
       ..._placeholderRoutes.entries.map(
