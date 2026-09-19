@@ -79,6 +79,16 @@ class UserRepository {
     );
   }
 
+  Future<void> updateName(String userId, String name) async {
+    final db = await AppDatabase.instance.database;
+    await db.update(
+      'users',
+      {'name': name.trim()},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
   Future<bool> updatePassword({
     required String userId,
     required String currentPassword,

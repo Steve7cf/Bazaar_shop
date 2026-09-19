@@ -14,11 +14,12 @@ class ThemeSelector extends ConsumerWidget {
     final current = ref.watch(themePreferenceProvider);
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm + 4),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: palette.bgSecondary,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: palette.border),
+        boxShadow: AppTheme.cardShadow(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

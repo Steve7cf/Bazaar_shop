@@ -40,11 +40,12 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.md,
-              AppSpacing.sm,
               AppSpacing.md,
-              AppSpacing.sm,
+              AppSpacing.md,
+              AppSpacing.sm + 4,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
                   controller: _searchController,
@@ -63,15 +64,18 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                             },
                           ),
                   ),
-                  onChanged: (v) =>
-                      ref.read(productsFilterProvider.notifier).setSearch(v),
+                  onChanged: (v) {
+                    setState(() {}); // refresh suffix icon visibility
+                    ref.read(productsFilterProvider.notifier).setSearch(v);
+                  },
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.md),
                 SizedBox(
-                  height: 34,
+                  height: 38,
                   child: categoriesAsync.when(
                     data: (categories) => ListView(
                       scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
                       children: [
                         _CategoryChip(
                           label: 'All',
@@ -81,7 +85,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                               .setCategory(null),
                         ),
                         for (final c in categories) ...[
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 8),
                           _CategoryChip(
                             label: c,
                             selected: filter.category == c,
@@ -93,55 +97,83 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                       ],
                     ),
                     loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
                   ),
                 ),
               ],
             ),
           ),
+          Divider(height: 1, color: palette.border),
           Expanded(
             child: productsAsync.when(
               data: (products) {
                 if (products.isEmpty) {
                   return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.inventory_2_outlined,
-                          size: 48,
-                          color: palette.textTertiary,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          filter.search.isEmpty && filter.category == null
-                              ? 'No products yet — tap + to add one'
-                              : 'No products match your filters',
-                          style: TextStyle(color: palette.textSecondary),
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 72,
+                            height: 72,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: palette.accent.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.inventory_2_outlined,
+                              size: 32,
+                              color: palette.accent,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            filter.search.isEmpty && filter.category == null
+                                ? 'No products yet'
+                                : 'No products match your filters',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            filter.search.isEmpty && filter.category == null
+                                ? 'Tap the + button to add your first product'
+                                : 'Try a different search or category',
+                            style: TextStyle(
+                              color: palette.textSecondary,
+                              fontSize: 13,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.md,
-                    0,
-                    AppSpacing.md,
-                    88,
+                return RefreshIndicator(
+                  onRefresh: () async => ref.invalidate(productsListProvider),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      96,
+                    ),
+                    itemCount: products.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: AppSpacing.sm + 2),
+                    itemBuilder: (context, i) {
+                      final product = products[i];
+                      return ProductListTile(
+                        product: product,
+                        onTap: () =>
+                            context.push('/home/products/${product.id}'),
+                        onRestock: () => showRestockDialog(context, product),
+                      );
+                    },
                   ),
-                  itemCount: products.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: AppSpacing.sm),
-                  itemBuilder: (context, i) {
-                    final product = products[i];
-                    return ProductListTile(
-                      product: product,
-                      onTap: () =>
-                          context.push('/home/products/${product.id}'),
-                      onRestock: () => showRestockDialog(context, product),
-                    );
-                  },
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -176,8 +208,9 @@ class _CategoryChip extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.pill),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
         decoration: BoxDecoration(
           color: selected ? palette.accent : palette.bgSecondary,
           borderRadius: BorderRadius.circular(AppRadius.pill),

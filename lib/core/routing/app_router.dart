@@ -4,6 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/screens/admin_setup_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/splash_screen.dart';
+import '../../features/customers/screens/customer_detail_screen.dart';
+import '../../features/customers/screens/customer_form_screen.dart';
+import '../../features/customers/screens/customers_screen.dart';
+import '../../features/debts/screens/debts_screen.dart';
 import '../../features/home/models/nav_item.dart';
 import '../../features/home/screens/dashboard_screen.dart';
 import '../../features/home/screens/placeholder_screen.dart';
@@ -12,12 +16,12 @@ import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/products/screens/product_form_screen.dart';
 import '../../features/products/screens/products_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import '../../features/sales/screens/new_sale_screen.dart';
+import '../../features/sales/screens/receipt_screen.dart';
+import '../../data/repositories/sale_repository.dart';
 
 final _placeholderRoutes = <String, ({String title, IconData icon})>{
-  '/home/pos': (title: 'New Sale', icon: Icons.point_of_sale_rounded),
   '/home/sales': (title: 'Sales History', icon: Icons.receipt_long_rounded),
-  '/home/customers': (title: 'Customers', icon: Icons.people_rounded),
-  '/home/debts': (title: 'Debts', icon: Icons.request_quote_rounded),
   '/home/loans': (title: 'Personal Loans', icon: Icons.handshake_rounded),
   '/home/expenses': (title: 'Matumizi', icon: Icons.payments_rounded),
   '/home/reports': (title: 'Reports', icon: Icons.bar_chart_rounded),
@@ -56,6 +60,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/home/pos',
+        builder: (context, state) => const HomeShell(
+          currentRoute: '/home/pos',
+          title: 'New Sale',
+          child: NewSaleScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/home/pos/receipt',
+        builder: (context, state) => ReceiptScreen(
+          result: state.extra as CompletedSale,
+        ),
+      ),
+      GoRoute(
         path: '/home/products',
         builder: (context, state) => const HomeShell(
           currentRoute: '/home/products',
@@ -74,11 +92,43 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/home/customers',
+        builder: (context, state) => const HomeShell(
+          currentRoute: '/home/customers',
+          title: 'Customers',
+          child: CustomersScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/home/customers/new',
+        builder: (context, state) => const CustomerFormScreen(),
+      ),
+      GoRoute(
+        path: '/home/customers/:id',
+        builder: (context, state) => CustomerDetailScreen(
+          customerId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/home/customers/:id/edit',
+        builder: (context, state) => CustomerFormScreen(
+          customerId: state.pathParameters['id'],
+        ),
+      ),
+      GoRoute(
         path: '/home/profile',
         builder: (context, state) => const HomeShell(
           currentRoute: '/home/profile',
           title: 'Profile',
           child: ProfileScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/home/debts',
+        builder: (context, state) => const HomeShell(
+          currentRoute: '/home/debts',
+          title: 'Debts',
+          child: DebtsScreen(),
         ),
       ),
       ..._placeholderRoutes.entries.map(
